@@ -1,12 +1,14 @@
 package com.baitu.tth
 
 import android.accessibilityservice.AccessibilityService
+import android.app.Instrumentation
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.view.KeyEvent
 import android.widget.Toast
 import com.baitu.tth.utils.PackageUtils
 
@@ -16,6 +18,9 @@ import com.baitu.tth.utils.PackageUtils
  *
  */
 class BaituAccessibilityService : AccessibilityService() {
+
+    val mainHandler = Handler(Looper.getMainLooper())
+
     override fun onInterrupt() {
     }
 
@@ -33,10 +38,9 @@ class BaituAccessibilityService : AccessibilityService() {
         Log.d("testAccess", "onServiceConnected")
         //com.ss.android.ugc.aweme:id/bu7
         startWork()
-        Handler(Looper.getMainLooper()).postDelayed({
-
-        performClick("com.ss.android.ugc.aweme:id/bu7")
-        }, 5000)
+        mainHandler.postDelayed({
+            performClick("com.ss.android.ugc.aweme:id/bu7")
+        }, 3000)
     }
 
     private fun startWork() {
@@ -51,12 +55,49 @@ class BaituAccessibilityService : AccessibilityService() {
     private fun performClick(resourceId: String) {
         val nodeInfo = this.rootInActiveWindow
         var targetNode: AccessibilityNodeInfo? = null
-//        targetNode = findNodeInfosById(nodeInfo, "com.ss.android.ugc.aweme:id/bu7")
-        targetNode = findNodeInfosById(nodeInfo, "com.ss.android.ugc.aweme:id/c8y")
-        Log.d("testAccess", "targetNode:${targetNode!!.text}")
-        if (targetNode!!.isClickable) {
-        }
-        targetNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        //点赞
+//        targetNode = findNodeInfosById(nodeInfo, "com.ss.android.ugc.aweme:id/c8y")
+        //评论：com.ss.android.ugc.aweme:id/bk4
+        //列表com.ss.android.ugc.aweme:id/ts
+//        targetNode = findNodeInfosById(nodeInfo, "com.ss.android.ugc.aweme:id/ts")
+        targetNode = findNodeInfosById(nodeInfo, "com.ss.android.ugc.aweme:id/aad")
+        targetNode?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+
+//        val item  = targetNode!!.getChild(0)
+//        item.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+//        Log.d("testAccess", "item：$item")
+
+//        for(child in 0..5){
+//
+//            mainHandler.postDelayed({
+//                val item  = targetNode!!.getChild(child)
+//                item.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+//                Log.d("testAccess", "item：$item")
+////                val likeItem = findNodeInfosById(nodeInfo, "com.ss.android.ugc.aweme:id/c8y")
+////                likeItem?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+////                actionKey(KeyEvent.KEYCODE_BACK)
+//            }, 2000)
+//        }
+//                targetNode = findNodeInfosById(nodeInfo, "com.ss.android.ugc.aweme:id/c8y")
+//        targetNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+    }
+
+    /**
+     * 模拟键盘事件方法
+     * @param keyCode
+     */
+    fun actionKey(keyCode: Int) {
+        object : Thread() {
+            override fun run() {
+                try {
+                    val inst = Instrumentation()
+                    inst.sendKeyDownUpSync(keyCode)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+            }
+        }.start()
     }
 
     //调用兵力（通过id查找）
